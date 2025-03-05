@@ -33,6 +33,11 @@ void setup() {
 }
 
 void loop() {
-
+  counter++;
+  if (counter > 200){
+    ArduinoCloud.update();
+    Serial.println(BPM);
+    counter = 0;
+  }
 
 }
