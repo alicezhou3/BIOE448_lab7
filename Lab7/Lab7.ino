@@ -18,8 +18,18 @@ unsigned long pulse_period = 0;
 
 
 void setup() {
-
-
+  delay(1500);
+  initProperties();
+  //Connect to cloud and get info/errors
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+  setDebugMessageLevel(2);
+  ArduinoCloud.printDebugInfo();
+  
+  //Wait for cloud connection
+  while (ArduinoCloud.connected() != 1) {
+    ArduinoCloud.update();
+    delay(500);
+  }
 }
 
 void loop() {
