@@ -3,21 +3,27 @@
 
 
 #include "thingProperties.h"
-int sensor_pin = 0;
+const int sensor_pin = 0;
 int pulse_signal = 0;
-int upper_threshold = 860; //or your threshold of choice
-int lower_threshold = 800; //or your threshold of choice
+float BPM = 0;
+int pulse_period = 0;
+int upper_threshold = 830; //or your threshold of choice
+int lower_threshold = 810; //or your threshold of choice
 int counter = 0;
+
 //float BPM = 0.0;
 bool ignore = false;
-bool first_pulse_detected = false;
+
+// Declaring storage data
+bool any_peak_detected = false;
+bool first_peak_detected = false;
 unsigned long first_pulse_time = 0;
 unsigned long second_pulse_time = 0;
-unsigned long pulse_period = 0;
-
 
 
 void setup() {
+  Serial.begin(9600);
+
   delay(1500);
   initProperties();
   //Connect to cloud and get info/errors
@@ -33,6 +39,41 @@ void setup() {
 }
 
 void loop() {
+  // Code from lab 6
+  pulse_signal = analogRead(sensor_pin);
+  Serial.println(pulse_signal);
+
+  delay(75);
+  //delay(50);
+
+  if (pulse_signal > upper_threshold && any_peak_detected ==
+  false) {
+    any_peak_detected = true;
+
+    if (first_peak_detected == false) {
+      first_pulse_time = millis();
+      first_peak_detected = true;
+      } else {
+      second_pulse_time = millis();
+      pulse_period = second_pulse_time - first_pulse_time;
+      //Serial.println("detected");
+      //Serial.println("time: " + pulse_period);
+      first_peak_detected = false;
+      BPM = 60000 / pulse_period;
+      //Serial.println(BPM);
+      
+      }
+  
+
+  } 
+ 
+
+  if (pulse_signal < lower_threshold) {
+    any_peak_detected = false;
+   
+  }
+
+  // New IOT code
   counter++;
   if (counter > 200){
     ArduinoCloud.update();
